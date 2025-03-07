@@ -1,0 +1,40 @@
+/* Cell Styles */
+.cell {
+    width: 30px;
+    height: 30px;
+    border: 1px solid #ccc;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 20px;
+    cursor: pointer;
+    user-select: none; /* Prevent text selection */
+}
+
+.cell.hidden {
+    background-color: #ddd;
+}
+
+.cell.hidden:hover {
+    background-color: #c0c0c0; /* Slightly lighter on hover */
+}
+
+.cell.revealed {
+    background-color: #fff;
+    cursor: default; /* No pointer on revealed cells */
+}
+
+.cell.mine {
+    background-color: red;
+    color: white;
+}
+
+
+.cell.num-1 { color: blue; }
+.cell.num-2 { color: green; }
+.cell.num-3 { color: red; }
+.cell.num-4 { color: darkblue; }
+.cell.num-5 { color: darkred; }
+.cell.num-6 { color: teal; }
+.cell.num-7 { color: black; }
+.cell.num-8 { color: gray; }
