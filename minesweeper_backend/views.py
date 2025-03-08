@@ -99,7 +99,7 @@ def reveal(request, game_id):
              game.game_won = True
 
          game.save()
-
+     
      return Response({
          'message': "Cell revealed", 
          'game_id': game.id,

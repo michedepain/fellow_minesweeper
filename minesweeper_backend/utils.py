@@ -3,9 +3,6 @@ import logging
 
 from minesweeper_backend.models import Game
 
-# Set up logging
-logger = logging.getLogger(__name__)
-
 def generate_minesweeper_board(width, height, mines):
     internal_board = [['' for _ in range(width)] for _ in range(height)]
     mines_placed = 0
@@ -41,24 +38,32 @@ def reveal_cell(board, row, col):
          1: If a cell was successfully revealed
     """
     # Early return if the cell is invalid or already revealed
-    if not is_valid_cell(board, row, col) or board[row][col] != '':
+    if not is_valid_cell(board, row, col):
+        return 0
+        
+    if board[row][col] != '':
         return 0
     
-    # Get the game associated with this board
     game = get_game_from_board(board)
     if not game:
         return 0
     
     internal_board = game.internal_board
     
-    # Handle mine cell
     if internal_board[row][col] == 'M':
         board[row][col] = 'M'
+        game.player_board = board
+        game.game_over = True
+        game.save()
         return -1
     
     # Count adjacent mines and update the cell
     mine_count = count_adjacent_mines(internal_board, row, col)
     board[row][col] = str(mine_count) if mine_count > 0 else '0'
+    
+    game.player_board = board
+    game.revealed_cells += 1
+    game.save()
     
     # Auto-reveal adjacent cells if no mines are nearby
     if mine_count == 0:
@@ -72,11 +77,12 @@ def reveal_cell(board, row, col):
                 # Skip the current cell
                 if i == row and j == col:
                     continue
-                
+                    
                 # Skip already revealed cells
                 if board[i][j] != '':
                     continue
                 
+                # Recursively reveal adjacent cells
                 reveal_cell(board, i, j)
     
     return 1
