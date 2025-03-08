@@ -165,7 +165,7 @@ class RevealCellTest(TestCase):
             
             # Multiple cells should be revealed due to recursion
             revealed_count = sum(1 for row in player_board for cell in row if cell != '')
-            self.assertGreater(revealed_count, 1)
+            self.assertEqual(revealed_count, 8)
 
     def test_reveal_already_revealed_cell(self):
         """Test revealing an already revealed cell"""

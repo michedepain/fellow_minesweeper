@@ -106,16 +106,16 @@ The frontend will be available at http://localhost:3000/
 
 ## 🧪 Running Tests
 
-The project includes comprehensive tests for the backend components. Here's how to run them:
+The project includes comprehensive tests for both backend and frontend components. Here's how to run them:
 
-### Running All Tests
+### Backend Tests
 
 ```bash
 # From the project root
 python manage.py test
 ```
 
-### Running Specific Test Modules
+### Running Specific Backend Test Modules
 
 ```bash
 # Test models only
@@ -128,7 +128,7 @@ python manage.py test minesweeper_backend.tests.test_views
 python manage.py test minesweeper_backend.tests.test_utils
 ```
 
-### Running Specific Test Classes
+### Running Specific Backend Test Classes
 
 ```bash
 # Test only the Game model
@@ -138,16 +138,42 @@ python manage.py test minesweeper_backend.tests.test_models.GameModelTest
 python manage.py test minesweeper_backend.tests.test_views.CreateGameViewTest
 ```
 
-### Running Individual Tests
+### Running Individual Backend Tests
 
 ```bash
 # Run a specific test method
 python manage.py test minesweeper_backend.tests.test_models.GameModelTest.test_game_creation
 ```
 
-### Test Coverage
+### Frontend Tests
 
-To generate a test coverage report, you can use the `coverage` tool:
+```bash
+# From the minesweeper_frontend directory
+npm test
+```
+
+### Running Frontend Tests in Different Modes
+
+```bash
+# Run tests in watch mode (default)
+npm test
+
+# Run tests once without watching
+npm run test:ci
+
+# Run tests with coverage report
+npm run test:coverage
+
+# Run a specific test file
+npm test -- Cell.test.jsx
+
+# Run tests matching a specific pattern
+npm test -- GameBoard
+```
+
+### Backend Test Coverage
+
+To generate a test coverage report for the backend, you can use the `coverage` tool:
 
 ```bash
 # Install coverage if you haven't already
@@ -268,21 +294,5 @@ coverage html
 - React
 - React Router
 - CSS for styling
-
-## 👥 Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## 📝 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
----
 
 Made with ❤️ by Michaël C.

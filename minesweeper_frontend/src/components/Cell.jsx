@@ -12,7 +12,7 @@ function Cell({ value, onClick, gameOver }) {
             cellClassName += ' mine';
         } else if (value === '0') {
           cellContent = '';
-
+          cellClassName += ' empty-revealed';
         }
         else {
             cellContent = value;
@@ -27,9 +27,15 @@ function Cell({ value, onClick, gameOver }) {
     }
 
     return (
-        <div className={cellClassName} onClick={onClick}>
+        <button 
+            className={cellClassName} 
+            onClick={onClick}
+            data-testid="cell"
+            aria-label={`Cell ${value ? 'revealed' : 'hidden'} ${value === 'M' ? 'mine' : ''}`}
+            type="button"
+        >
             {cellContent}
-        </div>
+        </button>
     );
 }
 

@@ -11,6 +11,7 @@ import React from 'react';
          }
          try{
              const updatedGame = await revealCell(gameId, row, col);
+             console.log('updatedGame', updatedGame);
              // Make sure gameId is preserved in the updated state
              setGameState(updatedGame);
          }catch(error){
@@ -20,7 +21,7 @@ import React from 'react';
      };
 
      if (!boardState) {
-         return <div>Loading...</div>; // Or some other loading indicator
+         return <div>Loading...</div>;
      }
 
      return (

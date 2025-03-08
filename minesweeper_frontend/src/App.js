@@ -5,7 +5,7 @@ import GameControls from './components/GameControls';
 import { getGame } from './api';
 import './styles.css';
 
-function GameWrapper() {
+export function GameWrapper() {
     const { gameId } = useParams();
     const [gameState, setGameState] = useState(null);
     const [loading, setLoading] = useState(true);
