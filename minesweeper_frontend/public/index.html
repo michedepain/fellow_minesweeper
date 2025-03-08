@@ -12,9 +12,25 @@
     <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
     <title>Minesweeper</title>
+    <style>
+      #confetti-canvas {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 9999;
+      }
+    </style>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
+    <canvas id="confetti-canvas"></canvas>
     <div id="root"></div>
-    </body>
+    <script>
+      // Make canvas-confetti use our canvas
+      window.confettiCanvas = document.getElementById('confetti-canvas');
+    </script>
+  </body>
 </html>

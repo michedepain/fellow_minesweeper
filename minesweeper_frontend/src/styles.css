@@ -9,10 +9,16 @@ h1 {
 }
 
 /* GameBoard Styles */
+.game-board-container {
+    position: relative;
+    display: inline-block;
+}
+
 .game-board {
     display: inline-block; /* Important for centering */
     border: 2px solid #333;
     margin-top: 20px;
+    position: relative; /* For positioning game messages */
 }
 
 .board-row {
@@ -48,8 +54,14 @@ h1 {
 .cell.mine {
     background-color: red;
     color: white;
+    animation: explode 0.5s ease-out;
 }
 
+@keyframes explode {
+    0% { transform: scale(0.8); opacity: 0.8; }
+    50% { transform: scale(1.2); opacity: 1; }
+    100% { transform: scale(1); opacity: 1; }
+}
 
 .cell.num-1 { color: blue; }
 .cell.num-2 { color: green; }
@@ -61,15 +73,44 @@ h1 {
 .cell.num-8 { color: gray; }
 
 /* Game Over/Won Messages */
-
 .game-over-message, .game-won-message {
-    margin-top: 15px;
-    font-size: 1.5em;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 2em;
     font-weight: bold;
-    color: red;
+    padding: 15px 25px;
+    border-radius: 10px;
+    z-index: 10;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    animation: messageAppear 0.5s ease-out forwards;
 }
-.game-won-message{
-  color: green;
+
+.game-over-message {
+    background-color: rgba(255, 0, 0, 0.8);
+    color: white;
+}
+
+.game-won-message {
+    background-color: rgba(0, 128, 0, 0.8);
+    color: white;
+    animation: winMessageAppear 0.5s ease-out forwards, bounce 1s ease-in-out infinite 0.5s;
+}
+
+@keyframes messageAppear {
+    0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+    100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+
+@keyframes winMessageAppear {
+    0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+    100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translate(-50%, -50%) scale(1); }
+    50% { transform: translate(-50%, -50%) scale(1.1); }
 }
 
 /*Game Control Styles*/
@@ -103,12 +144,33 @@ h1 {
     border-radius: 4px;
     cursor: pointer;
     font-size: 16px;
+    transition: background-color 0.3s, transform 0.2s;
 }
 
 .game-controls button:hover {
     background-color: #0056b3;
+    transform: scale(1.05);
 }
+
 .error-message {
     color: red;
     margin-top: 5px;
+    animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+    20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+
+/* Confetti Canvas */
+#confetti-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 100;
 }
