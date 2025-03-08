@@ -7,18 +7,16 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import AllowAny
 from .models import Game
-from .utils import reveal_cell, generate_minesweeper_board
+from .utils import reveal_cell
 from django.db import transaction
 
 @api_view(['POST'])
-@permission_classes([AllowAny])  #  Anyone can create a new game
+@permission_classes([AllowAny])
 def create_game(request):
-     # Get parameters with default values
      width_param = request.data.get('width', 10)
      height_param = request.data.get('height', 10)
      mines_param = request.data.get('mines', 10)
      
-     # Convert to integers
      try:
          width = int(width_param)
          height = int(height_param)
@@ -26,28 +24,25 @@ def create_game(request):
      except ValueError:
          return Response({"error": "Width, height, and mines must be integers."}, status=status.HTTP_400_BAD_REQUEST)
 
-     # Validate parameters
      if not all([width, height, mines]):
          return Response({"error": "Width, height, and mines are required."}, status=status.HTTP_400_BAD_REQUEST)
      if width <= 0 or height <= 0:
          return Response({"error": "Width and height should be > 0."}, status=status.HTTP_400_BAD_REQUEST)
 
-     # Create and initialize game
      try:
          game = Game(width=width, height=height, mines=mines)
-         game.full_clean()  # Run model validations
-         game.initialize_board() # Initialize and save
+         game.full_clean()
+         game.initialize_board()
          game.save()
      except ValidationError as e:
          return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
-     # Return success response
      return Response({
          'game_id': game.id,
          'width': game.width,
          'height': game.height,
          'mines': game.mines,
-         'board_state': game.player_board  # Send only the player's view board
+         'board_state': game.player_board
      }, status=status.HTTP_201_CREATED)
 
 
@@ -89,11 +84,11 @@ def reveal(request, game_id):
          revealed_count = reveal_cell(game.player_board, row, col)
 
          if revealed_count == -1:
-             game.game_over = True #Set game over
+             game.game_over = True
              game.save()
              return Response({
                  'message': "Game Over! You hit a mine!", 
-                 'game_id': game.id,  # Include game_id in the response
+                 'game_id': game.id,
                  'board_state': game.player_board, 
                  'game_over': game.game_over, 
                  'game_won': game.game_won 
@@ -107,14 +102,14 @@ def reveal(request, game_id):
 
      return Response({
          'message': "Cell revealed", 
-         'game_id': game.id,  # Include game_id in the response
+         'game_id': game.id,
          'board_state': game.player_board, 
          'game_over': game.game_over, 
          'game_won': game.game_won
      }, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
-@permission_classes([AllowAny])  # Anyone can retrieve the game state.
+@permission_classes([AllowAny])
 def get_game(request, game_id):
      game = get_object_or_404(Game, pk=game_id)
      return Response({
@@ -122,7 +117,7 @@ def get_game(request, game_id):
          'width': game.width,
          'height': game.height,
          'mines': game.mines,
-         'board_state': game.player_board,  # Send only the player's view board
+         'board_state': game.player_board,
          'game_over': game.game_over,
          'game_won': game.game_won
      }, status=status.HTTP_200_OK)

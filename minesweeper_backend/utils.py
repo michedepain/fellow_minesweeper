@@ -7,7 +7,6 @@ from minesweeper_backend.models import Game
 logger = logging.getLogger(__name__)
 
 def generate_minesweeper_board(width, height, mines):
-    # Create the internal board with mines placed
     internal_board = [['' for _ in range(width)] for _ in range(height)]
     mines_placed = 0
 
@@ -21,7 +20,6 @@ def generate_minesweeper_board(width, height, mines):
     # Create the player's view board (all cells hidden)
     player_board = [['' for _ in range(width)] for _ in range(height)]
     
-    # Return both boards - internal board for game logic, player board for display
     return {
         'internal_board': internal_board,
         'player_board': player_board
@@ -55,8 +53,8 @@ def reveal_cell(board, row, col):
     
     # Handle mine cell
     if internal_board[row][col] == 'M':
-        board[row][col] = 'M'  # Reveal the mine
-        return -1  # Game over
+        board[row][col] = 'M'
+        return -1
     
     # Count adjacent mines and update the cell
     mine_count = count_adjacent_mines(internal_board, row, col)
@@ -81,7 +79,7 @@ def reveal_cell(board, row, col):
                 
                 reveal_cell(board, i, j)
     
-    return 1  # Cell successfully revealed
+    return 1
 
 
 def is_valid_cell(board, row, col):

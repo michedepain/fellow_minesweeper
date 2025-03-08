@@ -38,46 +38,35 @@ class GameModelTest(TestCase):
 
     def test_clean_mines_validation(self):
         """Test that clean raises ValidationError with too many mines"""
-        # Create a game with mines equal to board size - 1
         game = Game(width=5, height=5, mines=24)
-        # This should pass as it's less than the board size
         game.clean()
 
-        # Create a game with mines equal to board size
         game = Game(width=5, height=5, mines=25)
-        # This should raise a ValidationError
         with self.assertRaises(ValidationError):
             game.clean()
 
-        # Create a game with mines greater than board size
         game = Game(width=5, height=5, mines=26)
-        # This should raise a ValidationError
         with self.assertRaises(ValidationError):
             game.clean()
 
     @patch('minesweeper_backend.utils.generate_minesweeper_board')
     def test_initialize_board(self, mock_generate_board):
         """Test that initialize_board correctly sets up the game boards"""
-        # Mock the board generation function
         mock_generate_board.return_value = {
             'internal_board': [['', 'M', ''], ['', '', 'M']],
             'player_board': [['', '', ''], ['', '', '']]
         }
 
-        # Create and initialize a game
         game = Game.objects.create(**self.valid_game_data)
         game.initialize_board()
 
-        # Check that the boards were set correctly
         self.assertEqual(game.internal_board, [['', 'M', ''], ['', '', 'M']])
         self.assertEqual(game.player_board, [['', '', ''], ['', '', '']])
 
-        # Verify the mock was called with correct parameters
         mock_generate_board.assert_called_once_with(10, 10, 10)
 
     def test_initialize_board_already_initialized(self):
         """Test that initialize_board raises ValidationError if boards already exist"""
-        # Create a game with boards already set
         game = Game.objects.create(
             width=5,
             height=5,
@@ -86,18 +75,15 @@ class GameModelTest(TestCase):
             player_board=[['', '', ''], ['', '', '']]
         )
 
-        # Attempting to initialize again should raise ValidationError
         with self.assertRaises(ValidationError):
             game.initialize_board()
 
     def test_board_dimensions(self):
         """Test that the board dimensions match the width and height"""
-        # Create a game with specific dimensions
         game = Game.objects.create(width=3, height=4, mines=2)
         
         # Mock the board generation to return predictable results
         with patch('minesweeper_backend.utils.generate_minesweeper_board') as mock_generate:
-            # Create boards with the expected dimensions
             internal_board = [['', '', ''] for _ in range(4)]
             player_board = [['', '', ''] for _ in range(4)]
             
@@ -108,7 +94,6 @@ class GameModelTest(TestCase):
             
             game.initialize_board()
             
-            # Check board dimensions
             self.assertEqual(len(game.internal_board), 4)  # Height
             self.assertEqual(len(game.internal_board[0]), 3)  # Width
             self.assertEqual(len(game.player_board), 4)  # Height
@@ -116,25 +101,19 @@ class GameModelTest(TestCase):
 
     def test_mine_count(self):
         """Test that the internal board has the correct number of mines"""
-        # Create a game with specific dimensions and mines
         game = Game.objects.create(width=5, height=5, mines=7)
         
-        # Initialize the board (using the real function)
         game.initialize_board()
         
-        # Count the mines in the internal board
         mine_count = sum(row.count('M') for row in game.internal_board)
         
-        # Check that the number of mines matches what was specified
         self.assertEqual(mine_count, 7)
 
     def test_player_board_initially_empty(self):
         """Test that the player board is initially all empty"""
-        # Create and initialize a game
         game = Game.objects.create(width=5, height=5, mines=5)
         game.initialize_board()
         
-        # Check that all cells in the player board are empty
         for row in game.player_board:
             for cell in row:
                 self.assertEqual(cell, '') 

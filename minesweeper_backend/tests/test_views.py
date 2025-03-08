@@ -32,7 +32,6 @@ class CreateGameViewTest(TestCase):
         self.assertEqual(response.data['mines'], 10)
         self.assertIn('board_state', response.data)
         
-        # Verify a game was created in the database
         game_id = response.data['game_id']
         game = Game.objects.get(id=game_id)
         self.assertEqual(game.width, 10)
@@ -43,7 +42,6 @@ class CreateGameViewTest(TestCase):
 
     def test_create_game_default_values(self):
         """Test game creation with default values"""
-        # Empty request should use default values
         response = self.client.post(self.url, {}, format='json')
         
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -53,19 +51,17 @@ class CreateGameViewTest(TestCase):
 
     def test_create_game_invalid_dimensions(self):
         """Test game creation with invalid dimensions"""
-        # Test with negative width
         data = {'width': -5, 'height': 10, 'mines': 10}
         response = self.client.post(self.url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         
-        # Test with zero height
         data = {'width': 10, 'height': 0, 'mines': 10}
         response = self.client.post(self.url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_create_game_too_many_mines(self):
         """Test game creation with too many mines"""
-        data = {'width': 5, 'height': 5, 'mines': 25}  # Equal to board size
+        data = {'width': 5, 'height': 5, 'mines': 25}
         response = self.client.post(self.url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn('error', response.data)
@@ -121,7 +117,6 @@ class RevealViewTest(TestCase):
 
     def test_reveal_cell_success(self):
         """Test successful cell reveal"""
-        # Find a cell that doesn't have a mine
         row, col = self._find_safe_cell()
         
         data = {'row': row, 'col': col}
@@ -131,13 +126,11 @@ class RevealViewTest(TestCase):
         self.assertEqual(response.data['message'], "Cell revealed")
         self.assertEqual(str(response.data['game_id']), str(self.game.id))
         
-        # Refresh game from database
         self.game.refresh_from_db()
-        self.assertNotEqual(self.game.player_board[row][col], '')  # Cell should be revealed
+        self.assertNotEqual(self.game.player_board[row][col], '')
 
     def test_reveal_mine_cell(self):
         """Test revealing a cell with a mine"""
-        # Find a cell that has a mine
         row, col = self._find_mine_cell()
         
         data = {'row': row, 'col': col}
@@ -146,21 +139,17 @@ class RevealViewTest(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['message'], "Game Over! You hit a mine!")
         
-        # Refresh game from database
         self.game.refresh_from_db()
-        self.assertEqual(self.game.player_board[row][col], 'M')  # Mine should be revealed
-        self.assertTrue(self.game.game_over)  # Game should be over
+        self.assertEqual(self.game.player_board[row][col], 'M')
+        self.assertTrue(self.game.game_over)
 
     def test_reveal_already_revealed_cell(self):
         """Test revealing an already revealed cell"""
-        # Find a cell that doesn't have a mine
         row, col = self._find_safe_cell()
         
-        # Reveal the cell first
         data = {'row': row, 'col': col}
         self.client.post(self.url, data, format='json')
         
-        # Try to reveal the same cell again
         response = self.client.post(self.url, data, format='json')
         
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -178,11 +167,11 @@ class RevealViewTest(TestCase):
 
     def test_reveal_missing_parameters(self):
         """Test revealing without providing row or column"""
-        data = {'row': 0}  # Missing col
+        data = {'row': 0}
         response = self.client.post(self.url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         
-        data = {'col': 0}  # Missing row
+        data = {'col': 0}
         response = self.client.post(self.url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -194,7 +183,6 @@ class RevealViewTest(TestCase):
 
     def test_reveal_game_already_over(self):
         """Test revealing when game is already over"""
-        # Set game as over
         self.game.game_over = True
         self.game.save()
         
@@ -205,7 +193,6 @@ class RevealViewTest(TestCase):
 
     def test_reveal_game_already_won(self):
         """Test revealing when game is already won"""
-        # Set game as won
         self.game.game_won = True
         self.game.save()
         
@@ -217,11 +204,8 @@ class RevealViewTest(TestCase):
     @patch('minesweeper_backend.utils.reveal_cell')
     def test_win_condition(self, mock_reveal_cell):
         """Test that game is marked as won when all non-mine cells are revealed"""
-        # Mock reveal_cell to return 1 (one cell revealed)
         mock_reveal_cell.return_value = 1
         
-        # Set up a game with 5x5 board and 5 mines
-        # So there are 20 non-mine cells
         game = Game.objects.create(width=5, height=5, mines=5)
         game.initialize_board()
         game.revealed_cells = 19  # One cell away from winning
@@ -231,11 +215,10 @@ class RevealViewTest(TestCase):
         data = {'row': 0, 'col': 0}
         response = self.client.post(url, data, format='json')
         
-        # Refresh game from database
         game.refresh_from_db()
         
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertTrue(game.game_won)  # Game should be won
+        self.assertTrue(game.game_won)
 
     def _find_safe_cell(self):
         """Helper method to find a cell without a mine"""
@@ -243,7 +226,6 @@ class RevealViewTest(TestCase):
             for col in range(self.game.width):
                 if self.game.internal_board[row][col] != 'M':
                     return row, col
-        # If all cells have mines (unlikely), return (0, 0)
         return 0, 0
 
     def _find_mine_cell(self):
@@ -252,5 +234,4 @@ class RevealViewTest(TestCase):
             for col in range(self.game.width):
                 if self.game.internal_board[row][col] == 'M':
                     return row, col
-        # If no mines found (shouldn't happen), return (0, 0)
         return 0, 0 
