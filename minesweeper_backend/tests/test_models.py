@@ -1,0 +1,140 @@
+from django.test import TestCase
+from django.core.exceptions import ValidationError
+from unittest.mock import patch
+
+from minesweeper_backend.models import Game
+
+
+class GameModelTest(TestCase):
+    """Test cases for the Game model"""
+
+    def setUp(self):
+        """Set up test data"""
+        self.valid_game_data = {
+            'width': 10,
+            'height': 10,
+            'mines': 10
+        }
+
+    def test_game_creation(self):
+        """Test that a game can be created with valid parameters"""
+        game = Game.objects.create(**self.valid_game_data)
+        self.assertIsNotNone(game.id)
+        self.assertEqual(game.width, 10)
+        self.assertEqual(game.height, 10)
+        self.assertEqual(game.mines, 10)
+        self.assertIsNone(game.internal_board)
+        self.assertIsNone(game.player_board)
+        self.assertEqual(game.revealed_cells, 0)
+        self.assertFalse(game.game_over)
+        self.assertFalse(game.game_won)
+        self.assertIsNotNone(game.created_at)
+
+    def test_clean_valid_mines(self):
+        """Test that clean passes with valid number of mines"""
+        game = Game(**self.valid_game_data)
+        # This should not raise an exception
+        game.clean()
+
+    def test_clean_mines_validation(self):
+        """Test that clean raises ValidationError with too many mines"""
+        # Create a game with mines equal to board size - 1
+        game = Game(width=5, height=5, mines=24)
+        # This should pass as it's less than the board size
+        game.clean()
+
+        # Create a game with mines equal to board size
+        game = Game(width=5, height=5, mines=25)
+        # This should raise a ValidationError
+        with self.assertRaises(ValidationError):
+            game.clean()
+
+        # Create a game with mines greater than board size
+        game = Game(width=5, height=5, mines=26)
+        # This should raise a ValidationError
+        with self.assertRaises(ValidationError):
+            game.clean()
+
+    @patch('minesweeper_backend.utils.generate_minesweeper_board')
+    def test_initialize_board(self, mock_generate_board):
+        """Test that initialize_board correctly sets up the game boards"""
+        # Mock the board generation function
+        mock_generate_board.return_value = {
+            'internal_board': [['', 'M', ''], ['', '', 'M']],
+            'player_board': [['', '', ''], ['', '', '']]
+        }
+
+        # Create and initialize a game
+        game = Game.objects.create(**self.valid_game_data)
+        game.initialize_board()
+
+        # Check that the boards were set correctly
+        self.assertEqual(game.internal_board, [['', 'M', ''], ['', '', 'M']])
+        self.assertEqual(game.player_board, [['', '', ''], ['', '', '']])
+
+        # Verify the mock was called with correct parameters
+        mock_generate_board.assert_called_once_with(10, 10, 10)
+
+    def test_initialize_board_already_initialized(self):
+        """Test that initialize_board raises ValidationError if boards already exist"""
+        # Create a game with boards already set
+        game = Game.objects.create(
+            width=5,
+            height=5,
+            mines=5,
+            internal_board=[['', 'M', ''], ['', '', 'M']],
+            player_board=[['', '', ''], ['', '', '']]
+        )
+
+        # Attempting to initialize again should raise ValidationError
+        with self.assertRaises(ValidationError):
+            game.initialize_board()
+
+    def test_board_dimensions(self):
+        """Test that the board dimensions match the width and height"""
+        # Create a game with specific dimensions
+        game = Game.objects.create(width=3, height=4, mines=2)
+        
+        # Mock the board generation to return predictable results
+        with patch('minesweeper_backend.utils.generate_minesweeper_board') as mock_generate:
+            # Create boards with the expected dimensions
+            internal_board = [['', '', ''] for _ in range(4)]
+            player_board = [['', '', ''] for _ in range(4)]
+            
+            mock_generate.return_value = {
+                'internal_board': internal_board,
+                'player_board': player_board
+            }
+            
+            game.initialize_board()
+            
+            # Check board dimensions
+            self.assertEqual(len(game.internal_board), 4)  # Height
+            self.assertEqual(len(game.internal_board[0]), 3)  # Width
+            self.assertEqual(len(game.player_board), 4)  # Height
+            self.assertEqual(len(game.player_board[0]), 3)  # Width
+
+    def test_mine_count(self):
+        """Test that the internal board has the correct number of mines"""
+        # Create a game with specific dimensions and mines
+        game = Game.objects.create(width=5, height=5, mines=7)
+        
+        # Initialize the board (using the real function)
+        game.initialize_board()
+        
+        # Count the mines in the internal board
+        mine_count = sum(row.count('M') for row in game.internal_board)
+        
+        # Check that the number of mines matches what was specified
+        self.assertEqual(mine_count, 7)
+
+    def test_player_board_initially_empty(self):
+        """Test that the player board is initially all empty"""
+        # Create and initialize a game
+        game = Game.objects.create(width=5, height=5, mines=5)
+        game.initialize_board()
+        
+        # Check that all cells in the player board are empty
+        for row in game.player_board:
+            for cell in row:
+                self.assertEqual(cell, '') 

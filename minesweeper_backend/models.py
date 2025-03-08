@@ -20,16 +20,16 @@ class Game(models.Model):
     game_won = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
-    def clean(self):  # Add validation
+    def clean(self):
          if self.mines >= self.width * self.height:
              raise ValidationError("Too many mines for the given board size.")
 
     def initialize_board(self):
-        from .utils import generate_minesweeper_board  # Import here to avoid circular import
+        from .utils import generate_minesweeper_board
         if self.internal_board is not None or self.player_board is not None:
             raise ValidationError("Board already initialized")
         
         boards = generate_minesweeper_board(self.width, self.height, self.mines)
         self.internal_board = boards['internal_board']
         self.player_board = boards['player_board']
-        self.save() #Save changes made
+        self.save()

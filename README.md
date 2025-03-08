@@ -20,6 +20,7 @@ A modern implementation of the classic Minesweeper game with a Django backend an
   - [Backend Setup](#backend-setup)
   - [Frontend Setup](#frontend-setup)
 - [Running the Project](#-running-the-project)
+- [Running Tests](#-running-tests)
 - [API Documentation](#-api-documentation)
 - [Game Rules](#-game-rules)
 - [Technologies Used](#-technologies-used)
@@ -102,6 +103,66 @@ yarn start
 ```
 
 The frontend will be available at http://localhost:3000/
+
+## 🧪 Running Tests
+
+The project includes comprehensive tests for the backend components. Here's how to run them:
+
+### Running All Tests
+
+```bash
+# From the project root
+python manage.py test
+```
+
+### Running Specific Test Modules
+
+```bash
+# Test models only
+python manage.py test minesweeper_backend.tests.test_models
+
+# Test views only
+python manage.py test minesweeper_backend.tests.test_views
+
+# Test utility functions only
+python manage.py test minesweeper_backend.tests.test_utils
+```
+
+### Running Specific Test Classes
+
+```bash
+# Test only the Game model
+python manage.py test minesweeper_backend.tests.test_models.GameModelTest
+
+# Test only the create game view
+python manage.py test minesweeper_backend.tests.test_views.CreateGameViewTest
+```
+
+### Running Individual Tests
+
+```bash
+# Run a specific test method
+python manage.py test minesweeper_backend.tests.test_models.GameModelTest.test_game_creation
+```
+
+### Test Coverage
+
+To generate a test coverage report, you can use the `coverage` tool:
+
+```bash
+# Install coverage if you haven't already
+pip install coverage
+
+# Run tests with coverage
+coverage run --source='minesweeper_backend' manage.py test
+
+# Generate a report
+coverage report
+
+# For a more detailed HTML report
+coverage html
+# Then open htmlcov/index.html in your browser
+```
 
 ## 📡 API Documentation
 
