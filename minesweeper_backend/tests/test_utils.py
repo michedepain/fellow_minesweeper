@@ -123,17 +123,16 @@ class RevealCellTest(TestCase):
         # The cell should show the number of adjacent mines
         self.assertEqual(self.game.player_board[1][1], '4')
 
-    @patch('minesweeper_backend.utils.reveal_cell', wraps=reveal_cell)
-    def test_reveal_cell_with_no_adjacent_mines(self, mock_reveal_cell):
-        """Test revealing a cell with no adjacent mines (recursive case)"""
-        # Create a game with a different board layout
+    def test_recursive_reveal(self):
+        """Test recursive revealing of cells with no adjacent mines"""
+        # Create a new test game with a simple board
         game = Game.objects.create(
             width=3,
             height=3,
             mines=1
         )
         
-        # Create a board with only one mine in the bottom-right corner
+        # Set up a board with a single mine in the bottom-right corner
         internal_board = [
             ['', '', ''],
             ['', '', ''],
@@ -146,21 +145,27 @@ class RevealCellTest(TestCase):
             ['', '', '']
         ]
         
+        # Manually set the boards
         game.internal_board = internal_board
         game.player_board = player_board
         game.save()
         
-        # Reveal top-left cell (0, 0) which has no adjacent mines
-        result = reveal_cell(game.player_board, 0, 0)
-        
-        # Should return 1 for the cell revealed
-        self.assertEqual(result, 1)
-        
-        # The cell should show '0' for no adjacent mines
-        self.assertEqual(game.player_board[0][0], '0')
-        
-        # Verify that reveal_cell was called multiple times (recursive calls)
-        self.assertGreater(mock_reveal_cell.call_count, 1)
+        # Create a mock for the get_game_from_board function to return our game
+        with patch('minesweeper_backend.utils.get_game_from_board') as mock_get_game:
+            mock_get_game.return_value = game
+            
+            # Reveal the top-left cell (0, 0)
+            result = reveal_cell(player_board, 0, 0)
+            
+            # Should return 1 for successful reveal
+            self.assertEqual(result, 1)
+            
+            # The cell should show '0' for no adjacent mines
+            self.assertEqual(player_board[0][0], '0')
+            
+            # Multiple cells should be revealed due to recursion
+            revealed_count = sum(1 for row in player_board for cell in row if cell != '')
+            self.assertGreater(revealed_count, 1)
 
     def test_reveal_already_revealed_cell(self):
         """Test revealing an already revealed cell"""
