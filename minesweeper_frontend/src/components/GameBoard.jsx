@@ -1,19 +1,56 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Cell from './Cell';
+import Timer from './Timer';
 import { revealCell } from '../api';
 import confetti from 'canvas-confetti';
 
 function GameBoard({ gameId, boardState, gameOver, gameWon, setGameState}) {
     const [prevGameWon, setPrevGameWon] = useState(false);
     const [prevGameOver, setPrevGameOver] = useState(false);
+    const [timerRunning, setTimerRunning] = useState(false);
+    const [seconds, setSeconds] = useState(0);
+    const timerRef = useRef(null);
     const victorySound = useRef(new Audio('https://assets.mixkit.co/sfx/preview/mixkit-winning-chimes-2015.mp3'));
     const gameOverSound = useRef(new Audio('https://assets.mixkit.co/sfx/preview/mixkit-explosion-with-debris-1701.mp3'));
+
+    // Handle timer
+    useEffect(() => {
+        // Clear any existing timer
+        if (timerRef.current) {
+            clearInterval(timerRef.current);
+            timerRef.current = null;
+        }
+        
+        // Start a new timer if the game is running
+        if (timerRunning && !gameOver && !gameWon) {
+            timerRef.current = setInterval(() => {
+                setSeconds(prevSeconds => prevSeconds + 1);
+            }, 1000);
+        }
+        
+        // Clean up on unmount
+        return () => {
+            if (timerRef.current) {
+                clearInterval(timerRef.current);
+            }
+        };
+    }, [timerRunning, gameOver, gameWon]);
+
+    // Start the timer when the board is first loaded
+    useEffect(() => {
+        if (boardState && !gameOver && !gameWon && !timerRunning) {
+            setTimerRunning(true);
+        }
+    }, [boardState, gameOver, gameWon, timerRunning]);
 
     // Handle game won state
     useEffect(() => {
         // Only trigger when gameWon changes from false to true
         if (gameWon && !prevGameWon) {
             console.log("Game won! Triggering celebration...");
+            
+            // Stop the timer
+            setTimerRunning(false);
             
             // Play victory sound
             try {
@@ -81,6 +118,9 @@ function GameBoard({ gameId, boardState, gameOver, gameWon, setGameState}) {
     useEffect(() => {
         // Only play sound when gameOver changes from false to true
         if (gameOver && !prevGameOver) {
+            // Stop the timer
+            setTimerRunning(false);
+            
             // Play game over sound
             try {
                 gameOverSound.current.volume = 0.5;
@@ -100,6 +140,12 @@ function GameBoard({ gameId, boardState, gameOver, gameWon, setGameState}) {
         if (gameOver || gameWon) {
             return; // Don't allow clicks if the game is over
         }
+        
+        // Ensure timer is running after first click
+        if (!timerRunning) {
+            setTimerRunning(true);
+        }
+        
         try{
             const updatedGame = await revealCell(gameId, row, col);
             console.log('updatedGame', updatedGame);
@@ -116,6 +162,12 @@ function GameBoard({ gameId, boardState, gameOver, gameWon, setGameState}) {
 
     return (
         <div className="game-board-container">
+            <Timer 
+                seconds={seconds}
+                isRunning={timerRunning} 
+                gameOver={gameOver} 
+                gameWon={gameWon} 
+            />
             <div className="game-board">
                 {boardState.map((row, rowIndex) => (
                     <div key={rowIndex} className="board-row">

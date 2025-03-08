@@ -37,3 +37,43 @@
     color: red;
     margin-top: 5px;
 }
+
+.difficulty-info {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    margin-top: 10px;
+    padding: 10px;
+    background-color: #e9ecef;
+    border-radius: 4px;
+    font-size: 0.9rem;
+}
+
+.difficulty-info span {
+    font-weight: bold;
+}
+
+/* Responsive adjustments */
+@media (max-width: 500px) {
+    .game-controls {
+        padding: 15px;
+    }
+    
+    .form-group {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .form-group label {
+        margin-bottom: 5px;
+    }
+    
+    .form-group input {
+        width: 100%;
+    }
+    
+    .difficulty-info {
+        flex-direction: column;
+        gap: 5px;
+    }
+}
