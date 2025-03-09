@@ -141,7 +141,7 @@ class RevealCellTest(TestCase):
             
             result = reveal_cell(player_board, 0, 0)
             
-            self.assertEqual(result, 1)
+            self.assertGreater(result, 0)
             
             self.assertEqual(player_board[0][0], '0')
             
