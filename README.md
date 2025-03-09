@@ -1,6 +1,6 @@
 # 💣 Minesweeper Game 💣
 
-A modern implementation of the classic Minesweeper game with a Django backend and React frontend.
+An implementation of the classic Minesweeper game with a Django backend and React frontend.
 
 ![Minesweeper Game](https://img.shields.io/badge/Game-Minesweeper-brightgreen)
 ![Python](https://img.shields.io/badge/Backend-Django-blue)
@@ -14,6 +14,14 @@ A modern implementation of the classic Minesweeper game with a Django backend an
 - 💥 Game over when hitting a mine
 - 🔄 Auto-reveal of adjacent empty cells
 
+## 📜 Game Rules
+
+1. 🎯 The goal is to reveal all cells that don't contain mines.
+2. 🔢 Numbers indicate how many mines are adjacent to that cell.
+3. 💥 If you reveal a cell with a mine, the game is over.
+4. 🏆 If you reveal all non-mine cells, you win!
+5. 0️⃣ Revealing a cell with no adjacent mines automatically reveals adjacent cells.
+
 ## 📋 Table of Contents
 
 - [Project Setup](#-project-setup)
@@ -22,9 +30,7 @@ A modern implementation of the classic Minesweeper game with a Django backend an
 - [Running the Project](#-running-the-project)
 - [Running Tests](#-running-tests)
 - [API Documentation](#-api-documentation)
-- [Game Rules](#-game-rules)
 - [Technologies Used](#-technologies-used)
-- [Contributing](#-contributing)
 
 ## 🚀 Project Setup
 
@@ -47,19 +53,11 @@ cd mineswipper
 
 ```bash
 python -m venv django_env
-# On Windows
-django_env\Scripts\activate
 # On macOS/Linux
 source django_env/bin/activate
 ```
 
-3. **Install dependencies**
-
-```bash
-pip install -r requirements.txt
-```
-
-4. **Run migrations**
+3. **Run migrations**
 
 ```bash
 python manage.py makemigrations
@@ -88,7 +86,7 @@ yarn install
 
 ```bash
 # From the project root
-python manage.py runserver
+python3 manage.py runserver
 ```
 
 The backend will be available at http://localhost:8000/
@@ -112,37 +110,20 @@ The project includes comprehensive tests for both backend and frontend component
 
 ```bash
 # From the project root
-python manage.py test
+python3 manage.py test
 ```
 
 ### Running Specific Backend Test Modules
 
 ```bash
 # Test models only
-python manage.py test minesweeper_backend.tests.test_models
+python3 manage.py test minesweeper_backend.tests.test_models
 
 # Test views only
-python manage.py test minesweeper_backend.tests.test_views
+python3 manage.py test minesweeper_backend.tests.test_views
 
 # Test utility functions only
-python manage.py test minesweeper_backend.tests.test_utils
-```
-
-### Running Specific Backend Test Classes
-
-```bash
-# Test only the Game model
-python manage.py test minesweeper_backend.tests.test_models.GameModelTest
-
-# Test only the create game view
-python manage.py test minesweeper_backend.tests.test_views.CreateGameViewTest
-```
-
-### Running Individual Backend Tests
-
-```bash
-# Run a specific test method
-python manage.py test minesweeper_backend.tests.test_models.GameModelTest.test_game_creation
+python3 manage.py test minesweeper_backend.tests.test_utils
 ```
 
 ### Frontend Tests
@@ -151,45 +132,6 @@ python manage.py test minesweeper_backend.tests.test_models.GameModelTest.test_g
 # From the minesweeper_frontend directory
 npm test
 ```
-
-### Running Frontend Tests in Different Modes
-
-```bash
-# Run tests in watch mode (default)
-npm test
-
-# Run tests once without watching
-npm run test:ci
-
-# Run tests with coverage report
-npm run test:coverage
-
-# Run a specific test file
-npm test -- Cell.test.jsx
-
-# Run tests matching a specific pattern
-npm test -- GameBoard
-```
-
-### Backend Test Coverage
-
-To generate a test coverage report for the backend, you can use the `coverage` tool:
-
-```bash
-# Install coverage if you haven't already
-pip install coverage
-
-# Run tests with coverage
-coverage run --source='minesweeper_backend' manage.py test
-
-# Generate a report
-coverage report
-
-# For a more detailed HTML report
-coverage html
-# Then open htmlcov/index.html in your browser
-```
-
 ## 📡 API Documentation
 
 ### Game Endpoints
@@ -275,13 +217,61 @@ coverage html
     }
     ```
 
-## 📜 Game Rules
+## Behind the scene
 
-1. 🎯 The goal is to reveal all cells that don't contain mines.
-2. 🔢 Numbers indicate how many mines are adjacent to that cell.
-3. 💥 If you reveal a cell with a mine, the game is over.
-4. 🏆 If you reveal all non-mine cells, you win!
-5. 0️⃣ Revealing a cell with no adjacent mines automatically reveals adjacent cells.
+The Stack-Based Flood Fill Algorithm is used to reveal cells.
+This algorithm "is an algorithm mainly used to determine a bounded area connected to a given node in a multi-dimensional array." ([source](https://www.freecodecamp.org/news/flood-fill-algorithm-explained/))
+
+Here is a visual representation of the algorithm:
+
+Internal board (M = mine, numbers would be calculated):
+
+```
+[ ,  ,  ]
+[ , M,  ]
+[ ,  ,  ]
+```
+
+Initial player board (all hidden):
+
+```
+[ ,  ,  ]
+[ ,  ,  ]
+[ ,  ,  ]
+```
+
+If the player clicks on the top-left cell (0,0):
+- We add (0,0) to the stack: stack = [(0,0)]
+- We pop (0,0), mark it as visited, and reveal it as '1' (it has one adjacent mine)
+- Since it's not an empty cell (mine_count = 1), we don't add any neighbors to the stack
+The stack is now empty, so we're done.
+
+Final player board:
+
+```
+[1,  ,  ]
+[ ,  ,  ]
+[ ,  ,  ]
+```
+
+Now, if the player clicks on the bottom-left cell (2,0), which has no adjacent mines:
+
+- We add (2,0) to the stack: stack = [(2,0)]
+- We pop (2,0), mark it as visited, and reveal it as '0'
+- Since it's an empty cell, we add its unvisited neighbors: stack = [(1,0), (2,1)]
+- We pop (2,1), mark it as visited, and reveal it as '1'
+- Since it's not an empty cell, we don't add any neighbors: stack = [(1,0)]
+- We continue this process until the stack is empty
+
+Final player board:
+
+```
+[1,  1, ]
+[1 , M, ]
+[0, 1, 1]
+```
+
+
 
 ## 🛠️ Technologies Used
 
