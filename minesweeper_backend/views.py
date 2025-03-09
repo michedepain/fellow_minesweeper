@@ -1,5 +1,4 @@
 from django.forms import ValidationError
-from django.shortcuts import render
 
 from django.shortcuts import get_object_or_404
 from rest_framework.decorators import api_view, permission_classes
@@ -11,15 +10,12 @@ from .utils import reveal_cell
 from django.db import transaction
 from django.views.decorators.cache import cache_page
 from django.core.cache import cache
-from django.utils.decorators import method_decorator
-import hashlib
 import time
 import logging
 from django.http import Http404
 
 logger = logging.getLogger(__name__)
 
-# Helper function to generate a cache key for a game
 def get_game_cache_key(game_id):
     return f"game_{game_id}"
 
@@ -84,18 +80,16 @@ def reveal(request, game_id):
      cache_hit = False
      
      try:
-         # Try to get the game from cache first
          cache_key = get_game_cache_key(game_id)
          cached_game_data = cache.get(cache_key)
          
-         # If not in cache, get from database
          if not cached_game_data:
              logger.debug(f"Cache miss for game {game_id}")
              game = get_object_or_404(Game, pk=game_id)
          else:
              logger.debug(f"Cache hit for game {game_id}")
              cache_hit = True
-             # For reveal operations, we still need the actual Game object
+
              game = get_object_or_404(Game, pk=game_id)
 
          if game.game_over or game.game_won:
@@ -135,7 +129,6 @@ def reveal(request, game_id):
          with transaction.atomic(): 
              game = Game.objects.select_for_update().get(pk=game_id) 
 
-             # Use the optimized reveal_cell function with the game and internal_board
              revealed_count = reveal_cell(game.player_board, row, col, internal_board=game.internal_board, game=game)
              reveal_elapsed = time.time() - reveal_start_time
              logger.debug(f"Revealed {revealed_count} cells in {reveal_elapsed:.4f} seconds")
@@ -152,33 +145,30 @@ def reveal(request, game_id):
                      'game_over': game.game_over, 
                      'game_won': game.game_won 
                  }
-                 cache.set(cache_key, game_data, timeout=3600)  # Cache for 1 hour
+                 cache.set(cache_key, game_data, timeout=3600) 
                  
                  elapsed_time = time.time() - start_time
                  logger.info(f"Game over for game {game_id} in {elapsed_time:.4f} seconds")
                  return Response(game_data, status=status.HTTP_200_OK)
 
-             # Update revealed cells count
              if isinstance(revealed_count, int) and revealed_count > 0:
                  game.revealed_cells += revealed_count
              
-             # Check for win condition
              if game.revealed_cells >= game.width * game.height - game.mines:
                  game.game_won = True
                  logger.info(f"Game {game_id} won!")
 
              game.save()
              
-             # Update cache
              game_data = {
                  'message': "Cell revealed", 
                  'game_id': game.id,
                  'board_state': game.player_board, 
                  'game_over': game.game_over, 
                  'game_won': game.game_won,
-                 'revealed_count': revealed_count  # Include the number of cells revealed
+                 'revealed_count': revealed_count
              }
-             cache.set(cache_key, game_data, timeout=3600)  # Cache for 1 hour
+             cache.set(cache_key, game_data, timeout=3600)
          
          elapsed_time = time.time() - start_time
          logger.info(f"Revealed cell ({row}, {col}) for game {game_id} in {elapsed_time:.4f} seconds, revealed {revealed_count} cells")
@@ -190,30 +180,25 @@ def reveal(request, game_id):
 
 @api_view(['GET'])
 @permission_classes([AllowAny])
-@cache_page(60 * 5)  # Cache this view for 5 minutes
+@cache_page(60 * 5)
 def get_game(request, game_id):
      start_time = time.time()
-     cache_hit = False
      
      try:
-         # Try to get the game from cache first
          cache_key = get_game_cache_key(game_id)
          cached_game_data = cache.get(cache_key)
          
          if cached_game_data:
              logger.debug(f"Cache hit for game {game_id}")
-             cache_hit = True
              elapsed_time = time.time() - start_time
              logger.info(f"Retrieved game {game_id} from cache in {elapsed_time:.4f} seconds")
              return Response(cached_game_data, status=status.HTTP_200_OK)
          
-         # If not in cache, get from database
          logger.debug(f"Cache miss for game {game_id}")
          
          try:
              game = get_object_or_404(Game, pk=game_id)
          except Http404:
-             # Return 404 instead of 500 for non-existent games
              logger.info(f"Game {game_id} not found")
              return Response({"error": "Game not found"}, status=status.HTTP_404_NOT_FOUND)
          
@@ -227,8 +212,7 @@ def get_game(request, game_id):
              'game_won': game.game_won
          }
          
-         # Cache the game data
-         cache.set(cache_key, game_data, timeout=3600)  # Cache for 1 hour
+         cache.set(cache_key, game_data, timeout=3600)
          
          elapsed_time = time.time() - start_time
          logger.info(f"Retrieved game {game_id} from database in {elapsed_time:.4f} seconds")

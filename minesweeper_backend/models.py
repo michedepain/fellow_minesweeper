@@ -11,11 +11,11 @@ class Game(models.Model):
     internal_board = models.JSONField(
         null=True,
         blank=True
-    )  # [['', 'M', ''], ['', 'M', ''], ...] - Contains the actual mine positions
+    )
     player_board = models.JSONField(
         null=True,
         blank=True
-    )  # [['', '', ''], ['', '', ''], ...] - What the player sees, initially all hidden
+    )
     revealed_cells = models.IntegerField(default=0)
     game_over = models.BooleanField(default=False)
     game_won = models.BooleanField(default=False)
@@ -36,10 +36,8 @@ class Game(models.Model):
         self.save()
     
     def save(self, *args, **kwargs):
-        # Call the original save method
         super().save(*args, **kwargs)
         
-        # Invalidate cache for this game
         self.invalidate_cache()
     
     def invalidate_cache(self):

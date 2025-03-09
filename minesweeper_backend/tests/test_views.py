@@ -204,7 +204,6 @@ class RevealViewTest(TestCase):
     @patch('minesweeper_backend.utils.reveal_cell')
     def test_win_condition(self, mock_reveal_cell):
         """Test that game is marked as won when all non-mine cells are revealed"""
-        # Return a number greater than 0 to indicate cells were revealed
         mock_reveal_cell.return_value = 1
         
         game = Game.objects.create(width=5, height=5, mines=5)

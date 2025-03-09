@@ -94,10 +94,10 @@ class GameModelTest(TestCase):
             
             game.initialize_board()
             
-            self.assertEqual(len(game.internal_board), 4)  # Height
-            self.assertEqual(len(game.internal_board[0]), 3)  # Width
-            self.assertEqual(len(game.player_board), 4)  # Height
-            self.assertEqual(len(game.player_board[0]), 3)  # Width
+            self.assertEqual(len(game.internal_board), 4)
+            self.assertEqual(len(game.internal_board[0]), 3)
+            self.assertEqual(len(game.player_board), 4)
+            self.assertEqual(len(game.player_board[0]), 3)
 
     def test_mine_count(self):
         """Test that the internal board has the correct number of mines"""

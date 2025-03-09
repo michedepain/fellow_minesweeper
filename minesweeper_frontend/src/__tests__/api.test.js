@@ -4,16 +4,12 @@ import { createGame, getGame, revealCell } from '../api';
 global.fetch = jest.fn();
 
 describe('API Functions', () => {
-  // Setup before each test
   beforeEach(() => {
-    // Reset mocks
     fetch.mockClear();
   });
 
-  // Test createGame function
   describe('createGame', () => {
     test('calls fetch with correct parameters', async () => {
-      // Mock successful response
       const mockResponse = {
         ok: true,
         json: jest.fn().mockResolvedValue({
@@ -27,10 +23,8 @@ describe('API Functions', () => {
       
       fetch.mockResolvedValue(mockResponse);
       
-      // Call the function
       const result = await createGame(10, 10, 10);
       
-      // Check if fetch was called correctly
       expect(fetch).toHaveBeenCalledWith(
         expect.stringContaining('/games/'),
         {
@@ -42,7 +36,6 @@ describe('API Functions', () => {
         }
       );
       
-      // Check if response was processed correctly
       expect(mockResponse.json).toHaveBeenCalled();
       expect(result).toEqual({
         game_id: 'test-id',
@@ -54,7 +47,6 @@ describe('API Functions', () => {
     });
     
     test('throws error when response is not ok', async () => {
-      // Mock error response
       const mockResponse = {
         ok: false,
         json: jest.fn().mockResolvedValue({
@@ -64,15 +56,12 @@ describe('API Functions', () => {
       
       fetch.mockResolvedValue(mockResponse);
       
-      // Call the function and expect it to throw
       await expect(createGame(10, 10, 10)).rejects.toThrow('Failed to create game');
     });
   });
 
-  // Test getGame function
   describe('getGame', () => {
     test('calls fetch with correct parameters', async () => {
-      // Mock successful response
       const mockResponse = {
         ok: true,
         json: jest.fn().mockResolvedValue({
@@ -86,15 +75,12 @@ describe('API Functions', () => {
       
       fetch.mockResolvedValue(mockResponse);
       
-      // Call the function
       const result = await getGame('test-id');
       
-      // Check if fetch was called correctly
       expect(fetch).toHaveBeenCalledWith(
         expect.stringContaining('/games/test-id/')
       );
       
-      // Check if response was processed correctly
       expect(mockResponse.json).toHaveBeenCalled();
       expect(result).toEqual({
         game_id: 'test-id',
@@ -106,7 +92,6 @@ describe('API Functions', () => {
     });
     
     test('throws error when response is not ok', async () => {
-      // Mock error response
       const mockResponse = {
         ok: false,
         json: jest.fn().mockResolvedValue({
@@ -116,15 +101,12 @@ describe('API Functions', () => {
       
       fetch.mockResolvedValue(mockResponse);
       
-      // Call the function and expect it to throw
       await expect(getGame('test-id')).rejects.toThrow('Game not found');
     });
   });
 
-  // Test revealCell function
   describe('revealCell', () => {
     test('calls fetch with correct parameters', async () => {
-      // Mock successful response
       const mockResponse = {
         ok: true,
         json: jest.fn().mockResolvedValue({
@@ -137,10 +119,8 @@ describe('API Functions', () => {
       
       fetch.mockResolvedValue(mockResponse);
       
-      // Call the function
       const result = await revealCell('test-id', 0, 0);
       
-      // Check if fetch was called correctly
       expect(fetch).toHaveBeenCalledWith(
         expect.stringContaining('/games/test-id/reveal/'),
         {
@@ -152,7 +132,6 @@ describe('API Functions', () => {
         }
       );
       
-      // Check if response was processed correctly
       expect(mockResponse.json).toHaveBeenCalled();
       expect(result).toEqual({
         game_id: 'test-id',
@@ -163,7 +142,6 @@ describe('API Functions', () => {
     });
     
     test('throws error when response is not ok', async () => {
-      // Mock error response
       const mockResponse = {
         ok: false,
         json: jest.fn().mockResolvedValue({
@@ -173,7 +151,6 @@ describe('API Functions', () => {
       
       fetch.mockResolvedValue(mockResponse);
       
-      // Call the function and expect it to throw
       await expect(revealCell('test-id', 0, 0)).rejects.toThrow('Failed to reveal cell');
     });
   });

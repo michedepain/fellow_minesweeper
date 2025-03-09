@@ -13,9 +13,7 @@ function GameBoard({ gameId, boardState, gameOver, gameWon, setGameState}) {
     const victorySound = useRef(new Audio('https://assets.mixkit.co/sfx/preview/mixkit-winning-chimes-2015.mp3'));
     const gameOverSound = useRef(new Audio('https://assets.mixkit.co/sfx/preview/mixkit-explosion-with-debris-1701.mp3'));
 
-    // Handle timer
     useEffect(() => {
-        // Clear any existing timer
         if (timerRef.current) {
             clearInterval(timerRef.current);
             timerRef.current = null;
@@ -49,10 +47,8 @@ function GameBoard({ gameId, boardState, gameOver, gameWon, setGameState}) {
         if (gameWon && !prevGameWon) {
             console.log("Game won! Triggering celebration...");
             
-            // Stop the timer
             setTimerRunning(false);
             
-            // Play victory sound
             try {
                 victorySound.current.volume = 0.5;
                 victorySound.current.currentTime = 0;
@@ -61,22 +57,18 @@ function GameBoard({ gameId, boardState, gameOver, gameWon, setGameState}) {
                 console.error("Error playing victory sound:", error);
             }
             
-            // Trigger confetti
             try {
-                // Configure confetti to use our canvas
                 const myConfetti = confetti.create(
                     document.getElementById('confetti-canvas'), 
                     { resize: true, useWorker: true }
                 );
                 
-                // Simple confetti burst
                 myConfetti({
                     particleCount: 200,
                     spread: 100,
                     origin: { y: 0.6 }
                 });
                 
-                // Schedule additional bursts
                 setTimeout(() => {
                     myConfetti({
                         particleCount: 150,
@@ -95,7 +87,6 @@ function GameBoard({ gameId, boardState, gameOver, gameWon, setGameState}) {
                     });
                 }, 1000);
                 
-                // Final big burst
                 setTimeout(() => {
                     myConfetti({
                         particleCount: 300,
@@ -110,18 +101,13 @@ function GameBoard({ gameId, boardState, gameOver, gameWon, setGameState}) {
             }
         }
         
-        // Update previous game won state
         setPrevGameWon(gameWon);
     }, [gameWon, prevGameWon]);
 
-    // Play game over sound when player hits a mine
     useEffect(() => {
-        // Only play sound when gameOver changes from false to true
         if (gameOver && !prevGameOver) {
-            // Stop the timer
             setTimerRunning(false);
             
-            // Play game over sound
             try {
                 gameOverSound.current.volume = 0.5;
                 gameOverSound.current.currentTime = 0;
@@ -131,17 +117,15 @@ function GameBoard({ gameId, boardState, gameOver, gameWon, setGameState}) {
             }
         }
         
-        // Update previous game over state
         setPrevGameOver(gameOver);
     }, [gameOver, prevGameOver]);
 
     const handleCellClick = async (row, col) => {
         console.log('gameID', gameId);
         if (gameOver || gameWon) {
-            return; // Don't allow clicks if the game is over
+            return;
         }
         
-        // Ensure timer is running after first click
         if (!timerRunning) {
             setTimerRunning(true);
         }
@@ -149,7 +133,6 @@ function GameBoard({ gameId, boardState, gameOver, gameWon, setGameState}) {
         try{
             const updatedGame = await revealCell(gameId, row, col);
             console.log('updatedGame', updatedGame);
-            // Make sure gameId is preserved in the updated state
             setGameState(updatedGame);
         }catch(error){
             console.error("Failed to reveal the cell", error)
