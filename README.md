@@ -6,6 +6,9 @@ An implementation of the classic Minesweeper game with a Django backend and Reac
 ![Python](https://img.shields.io/badge/Backend-Django-blue)
 ![React](https://img.shields.io/badge/Frontend-React-61DAFB)
 
+
+[Demo](https://screenshot.click/09-18-3zupg-gasx2.mp4)
+
 ## 🎮 Game Features
 
 - 🎲 Customizable board size and mine count
