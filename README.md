@@ -48,23 +48,29 @@ An implementation of the classic Minesweeper game with a Django backend and Reac
 1. **Clone the repository**
 
 ```bash
-git clone https://github.com/michedepain/mineswipper.git
-cd mineswipper
+git clone https://github.com/michedepain/minesweeper.git
+cd minesweeper
 ```
 
 2. **Create and activate a virtual environment**
 
 ```bash
-python -m venv django_env
+python3 -m venv django_env
 # On macOS/Linux
 source django_env/bin/activate
 ```
 
-3. **Run migrations**
+3. **Install dependencies**
 
 ```bash
-python manage.py makemigrations
-python manage.py migrate
+pip install -r requirements.txt
+```
+
+4. **Run migrations**
+
+```bash
+python3 manage.py makemigrations
+python3 manage.py migrate
 ```
 
 ### Frontend Setup
