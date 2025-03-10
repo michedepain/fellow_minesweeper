@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
-import Cell from './Cell';
-import Timer from './Timer';
-import { revealCell } from '../api';
+import Cell from '../cell/Cell';
+import Timer from '../timer/Timer';
+import { revealCell } from '../../api';
 import confetti from 'canvas-confetti';
 
 function GameBoard({ gameId, boardState, gameOver, gameWon, setGameState}) {

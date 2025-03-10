@@ -8,13 +8,13 @@ import * as router from 'react-router-dom';
 
 jest.mock('../api');
 
-jest.mock('../components/GameBoard', () => {
+jest.mock('../components/game_board/GameBoard', () => {
   return function MockGameBoard(props) {
     return <div data-testid="game-board">Game Board: {JSON.stringify(props)}</div>;
   };
 });
 
-jest.mock('../components/GameControls', () => {
+jest.mock('.../components/game_controls/GameControls', () => {
   return function MockGameControls() {
     return <div data-testid="game-controls">Game Controls</div>;
   };

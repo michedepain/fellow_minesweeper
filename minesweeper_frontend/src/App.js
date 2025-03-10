@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useParams, useNavigate, Navigate } from 'react-router-dom';
-import GameBoard from './components/GameBoard';
-import GameControls from './components/GameControls';
+import GameBoard from './components/game_board/GameBoard';
+import GameControls from './game_controls/GameControls';
 import { getGame } from './api';
 import './styles.css';
 

@@ -6,7 +6,7 @@ import * as api from '../api';
 
 jest.mock('../api');
 
-jest.mock('../components/GameBoard', () => {
+jest.mock('../components/game_board/GameBoard', () => {
   return function MockGameBoard(props) {
     return <div data-testid="game-board">Game Board: {JSON.stringify(props)}</div>;
   };
